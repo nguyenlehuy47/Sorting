@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include "algorithms/sortingAlgorithms.h"
+#include <cmath>
 using namespace std;
 
 // Selection Sort
@@ -195,8 +196,16 @@ void mergeSort(vector<int>& arr, long long& comparisonCount) {
 }
 
 // Quick Sort
+int medianOfThree(vector<int>& arr, int low, int high) {
+    int mid = low + (high - low) / 2;
+    if (arr[mid] < arr[low]) swap(arr[mid], arr[low]);
+    if (arr[high] < arr[low]) swap(arr[high], arr[low]);
+    if (arr[mid] < arr[high]) swap(arr[mid], arr[high]);
+    return arr[high];
+}
+
 int partition(vector<int>& arr, int low, int high, long long& comparisonCount) {
-    int pivot = arr[high];
+    int pivot = medianOfThree(arr, low, high);
     int i = low - 1;
     for (int j = low; j < high; j++) {
         comparisonCount++;
@@ -209,17 +218,31 @@ int partition(vector<int>& arr, int low, int high, long long& comparisonCount) {
     return i + 1;
 }
 
-void quickSort(vector<int>& arr, int low, int high, long long& comparisonCount) {
-    if (low < high) {
+void quickSort(vector<int>& arr, int low, int high, long long& comparisonCount, int depthLimit) {
+    while (low < high) {
+        if (depthLimit == 0) {
+            make_heap(arr.begin() + low, arr.begin() + high + 1);
+            sort_heap(arr.begin() + low, arr.begin() + high + 1);
+            return;
+        }
+        depthLimit--;
+
         int pi = partition(arr, low, high, comparisonCount);
-        quickSort(arr, low, pi - 1, comparisonCount);
-        quickSort(arr, pi + 1, high, comparisonCount);
+        
+        if (pi - low < high - pi) {
+            quickSort(arr, low, pi - 1, comparisonCount, depthLimit);
+            low = pi + 1; // Đệ quy tail call
+        } else {
+            quickSort(arr, pi + 1, high, comparisonCount, depthLimit);
+            high = pi - 1;
+        }
     }
 }
 
 void quickSort(vector<int>& arr, long long& comparisonCount) {
     comparisonCount = 0;
-    quickSort(arr, 0, arr.size() - 1, comparisonCount);
+    int depthLimit = 2 * log2(arr.size()); // Giới hạn độ sâu để tránh stack overflow
+    quickSort(arr, 0, arr.size() - 1, comparisonCount, depthLimit);
 }
 
 // Counting Sort
@@ -263,36 +286,41 @@ void radixSort(vector<int>& arr, long long& comparisonCount) {
 
 void flashSort(vector<int>& arr, long long& comparisonCount) {
     int n = arr.size();
-    int minVal = *min_element(arr.begin(), arr.end());
-    int maxIdx = max_element(arr.begin(), arr.end()) - arr.begin();
     comparisonCount = 0;
 
-    if (minVal == arr[maxIdx]) return;
+    if (n <= 1) return;
 
-    int m = max(1, int(0.45 * n));  // Đảm bảo m >= 1
+    int minVal = *min_element(arr.begin(), arr.end());
+    int maxIdx = max_element(arr.begin(), arr.end()) - arr.begin();
+    int maxVal = arr[maxIdx];
+
+    if (minVal == maxVal) return;  // Mảng đã sắp xếp
+
+    int m = max(1, min(1000, int(0.45 * n)));  // Giới hạn m để tránh lỗi
     vector<int> L(m, 0);
 
+    // Bước 1: Phân loại phần tử vào bucket
     for (int i = 0; i < n; i++) {
-        int k = min(m - 1, (m * (arr[i] - minVal)) / (arr[maxIdx] - minVal));
+        int k = min(m - 1, (m * (arr[i] - minVal)) / (maxVal - minVal));
         L[k]++;
         comparisonCount++;
     }
 
+    // Bước 2: Chuyển đổi L thành chỉ mục
     for (int i = 1; i < m; i++)
         L[i] += L[i - 1];
 
+    // Bước 3: Sắp xếp trong bucket
     int count = 0, index = 0;
     while (count < n) {
-        int k = min(m - 1, (m * (arr[index] - minVal)) / (arr[maxIdx] - minVal));
-        while (index < n && index >= L[k]) {
+        while (index < n && index >= L[min(m - 1, (m * (arr[index] - minVal)) / (maxVal - minVal))]) {
             index++;
             if (index >= n) return;
-            k = min(m - 1, (m * (arr[index] - minVal)) / (arr[maxIdx] - minVal));
         }
 
         int value = arr[index];
-        while (index != L[k]) {
-            k = min(m - 1, (m * (value - minVal)) / (arr[maxIdx] - minVal));
+        while (index != L[min(m - 1, (m * (value - minVal)) / (maxVal - minVal))]) {
+            int k = min(m - 1, (m * (value - minVal)) / (maxVal - minVal));
             if (L[k] > 0) {
                 swap(value, arr[--L[k]]);
             }
