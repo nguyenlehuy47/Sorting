@@ -1,0 +1,6 @@
+1,2,3
+Sorting Algorithm,Running Time (ms),Comparisons
+quick-sort,18,629108
+selection-sort,3000,612482500
+quick-sort,865,112492500
+selection-sort,574,112492500

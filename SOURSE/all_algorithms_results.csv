@@ -1,0 +1,40 @@
+DATA ODER:-rand,,
+DATA SIZE: 10000,,
+selection-sort,276,49995000
+insertion-sort,163,25037350
+binary-insertion-sort,113,119010
+bubble-sort,682,49995000
+shaker-sort,602,49995000
+shell-sort,2,262456
+heap-sort,3,166319
+merge-sort,4,120468
+quick-sort,2,147375
+counting-sort,0,10000
+radix-sort,1,40000
+flash-sort,17,894433
+DATA SIZE: 30000,,
+selection-sort,2224,449985000
+insertion-sort,1453,223176358
+binary-insertion-sort,1003,404712
+bubble-sort,6123,449985000
+shaker-sort,5376,449985000
+shell-sort,10,940051
+heap-sort,12,571341
+merge-sort,14,408545
+quick-sort,7,567452
+counting-sort,1,30000
+radix-sort,4,150000
+flash-sort,38,1918579
+DATA SIZE: 50000,,
+selection-sort,6113,1249975000
+insertion-sort,4064,624179263
+binary-insertion-sort,2805,711222
+bubble-sort,17004,1249975000
+shaker-sort,15008,1249975000
+shell-sort,19,1843089
+heap-sort,22,1006476
+merge-sort,25,718208
+quick-sort,12,930497
+counting-sort,1,50000
+radix-sort,7,250000
+flash-sort,615,31103069
